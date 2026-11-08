@@ -1,0 +1,98 @@
+.login-page { min-height: 100vh; background: #f3f8f7; }
+.login-header, .login-footer {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  padding: 14px max(22px, calc((100% - 1120px) / 2));
+  background: #fff;
+}
+.login-header { min-height: 80px; border-bottom: 1px solid var(--line); }
+.login-brand { display: flex; align-items: center; gap: 12px; color: var(--navy); text-decoration: none; }
+.login-brand strong, .login-brand small { display: block; }
+.login-brand strong { font-size: 18px; letter-spacing: .07em; }
+.login-brand small { color: var(--muted); font-size: 14px; }
+.login-help-link { color: #145f5c; font-weight: 700; }
+.login-main {
+  display: grid;
+  width: min(1120px, 100%);
+  min-height: calc(100vh - 148px);
+  grid-template-columns: 1fr minmax(360px, .9fr);
+  align-items: center;
+  gap: 64px;
+  margin: auto;
+  padding: 44px 28px;
+}
+.login-welcome h1 { max-width: 470px; line-height: 1.18; }
+.login-welcome > p:not(.eyebrow) { margin: 14px 0 22px; color: var(--muted); font-size: 20px; }
+.welcome-points { display: grid; gap: 11px; }
+.welcome-points > div { display: flex; align-items: center; gap: 11px; }
+.welcome-points span, .support-icon {
+  display: grid;
+  width: 28px;
+  height: 28px;
+  flex: 0 0 auto;
+  place-items: center;
+  border-radius: 50%;
+  background: #d9eee6;
+  color: #145e4a;
+  font-weight: 700;
+}
+.login-support { display: flex; gap: 11px; margin-top: 26px; padding: 14px; border: 1px solid #cfe0df; border-radius: 10px; background: #fff; }
+.login-support p { margin: 0; color: #435d68; font-size: 15px; }
+.support-icon { background: #e0f0eb; color: #175c58; }
+.login-card { padding: 28px; border: 1px solid var(--line); border-radius: 14px; background: #fff; box-shadow: 0 8px 30px #16394912; }
+.login-card-heading { margin-bottom: 20px; }
+.login-card h2 { font-size: 30px; }
+.login-card-heading > p:last-child { margin: 5px 0 0; color: var(--muted); }
+.login-field { display: grid; gap: 6px; margin-top: 16px; }
+.login-field label { font-weight: 700; }
+.login-field input, .login-field select {
+  width: 100%;
+  min-height: 54px;
+  padding: 10px 13px;
+  border: 2px solid #aebfc6;
+  border-radius: 8px;
+  background: #fff;
+  color: var(--ink);
+  font: inherit;
+}
+.password-control { display: flex; gap: 8px; }
+.password-control input { min-width: 0; flex: 1; }
+.password-toggle { min-width: 92px; min-height: 54px; padding: 8px 12px; border: 2px solid #aebfc6; border-radius: 8px; background: #fff; color: #145f5c; font: inherit; font-size: 15px; font-weight: 700; cursor: pointer; }
+.password-toggle:hover { background: #f0f8f6; }
+.login-field input::placeholder { color: #627681; }
+.login-field small, .login-demo-note { color: var(--muted); font-size: 14px; }
+.login-options { margin: 14px 0; }
+.remember-option { display: inline-flex; min-height: 44px; align-items: center; gap: 10px; cursor: pointer; }
+.remember-option input { width: 21px; height: 21px; accent-color: var(--teal); }
+.login-submit {
+  width: 100%;
+  min-height: 56px;
+  border: 0;
+  border-radius: 8px;
+  background: var(--teal);
+  color: #fff;
+  font: inherit;
+  font-weight: 700;
+  cursor: pointer;
+}
+.login-submit:hover { background: #105f5d; }
+.login-demo-note { margin: 12px 0 0; text-align: center; }
+.login-footer { min-height: 68px; border-top: 1px solid var(--line); color: var(--muted); font-size: 14px; }
+.login-footer-location { display: grid; gap: 2px; }
+.login-footer-location strong { color: var(--navy); }
+.login-footer a { color: #145f5c; font-weight: 700; }
+@media (max-width: 900px) {
+  .login-main { gap: 30px; }
+}
+@media (max-width: 700px) {
+  .login-header { min-height: 68px; padding: 10px 16px; }
+  .login-help-link { width: 44px; height: 44px; overflow: hidden; font-size: 0; }
+  .login-help-link::before { content: "☎"; font-size: 22px; }
+  .login-main { min-height: auto; grid-template-columns: 1fr; gap: 22px; padding: 28px 16px; }
+  .login-welcome h1 { font-size: 35px; }
+  .login-welcome > p:not(.eyebrow) { font-size: 18px; }
+  .login-card { width: min(100%, 560px); margin: auto; padding: 23px 18px; }
+  .login-footer { align-items: flex-start; flex-direction: column; padding: 13px 16px; }
+}

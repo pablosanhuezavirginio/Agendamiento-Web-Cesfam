@@ -1,0 +1,151 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="description" content="Prototipo visual de agendamiento de horas para CESFAM Juan Soto Fernández.">
+  <title>Mis horas | CESFAM Juan Soto Fernández</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+  <link href="styles.css" rel="stylesheet">
+  <link href="portal.css" rel="stylesheet">
+</head>
+<body>
+  <a class="skip-link" href="#contenido">Saltar al contenido principal</a>
+  <div class="app-shell">
+    <aside class="sidebar" aria-label="Navegación principal">
+      <a class="brand" href="#inicio" aria-label="CESFAM Juan Soto Fernández, inicio">
+        <span class="brand-mark" aria-hidden="true">+</span>
+        <span>
+          <strong>CESFAM</strong>
+          <small>Juan Soto Fernández</small>
+        </span>
+      </a>
+      <div class="sidebar-label">MENÚ PRINCIPAL</div>
+      <nav class="nav-menu">
+        <a class="nav-item active" href="#inicio"><span aria-hidden="true">⌂</span> Inicio</a>
+        <a class="nav-item" href="#mis-horas"><span aria-hidden="true">▦</span> Mis horas</a>
+        <a class="nav-item" href="#agendar"><span aria-hidden="true">＋</span> Agendar una hora</a>
+      </nav>
+      <div class="sidebar-help">
+        <strong>¿Necesita ayuda?</strong>
+        <p>Estamos aquí para orientarle con sus horas.</p>
+        <a href="tel:800500809">Llamar al CESFAM</a>
+      </div>
+      <div class="sidebar-footer">Atención Primaria de Salud</div>
+    </aside>
+    <main id="contenido" class="main-content">
+      <header class="topbar">
+        <div class="d-flex align-items-center gap-3">
+          <span class="mobile-brand-mark" aria-hidden="true">+</span>
+          <div>
+            <p class="eyebrow mb-1">PORTAL DE PACIENTES</p>
+            <p class="topbar-title mb-0">Mi espacio de salud</p>
+          </div>
+        </div>
+        <div class="profile">
+          <div class="profile-avatar" aria-hidden="true">MP</div>
+          <div class="profile-copy">
+            <strong>María Pérez</strong>
+            <span>Paciente</span>
+          </div>
+          <a class="logout-link" href="index.html">Salir</a>
+        </div>
+      </header>
+      <div class="page-container">
+        <section id="inicio" class="welcome-row">
+          <div>
+            <p class="eyebrow">DOMINGO, 8 DE NOVIEMBRE DE 2026</p>
+            <h1>Hola, María <span aria-hidden="true"></span></h1>
+            <p class="welcome-copy">Aquí puede revisar sus horas y encontrar la atención que necesita.</p>
+          </div>
+          <a class="btn btn-primary btn-large" href="#agendar"><span aria-hidden="true">＋</span> Agendar nueva hora</a>
+        </section>
+        <section class="notice-card" aria-label="Aviso importante">
+          <div>
+            <strong>Su salud, a su ritmo</strong>
+            <p class="mb-0">Revise los detalles de sus atenciones en cualquier momento. Si necesita ayuda, un familiar puede acompañarle.</p>
+          </div>
+        </section>
+        <section id="mis-horas" class="section-block">
+          <div class="section-heading">
+            <div>
+              <p class="eyebrow">AGENDA</p>
+              <h2>Su próxima hora</h2>
+            </div>
+          </div>
+          <article class="appointment-card">
+            <div class="appointment-date">
+              <span>MIÉ</span>
+              <strong>11</strong>
+              <span>NOV</span>
+            </div>
+            <div class="appointment-details">
+              <span class="status-badge"><span aria-hidden="true">●</span> Confirmada</span>
+              <h3>Medicina General</h3>
+              <p class="appointment-meta"><span aria-hidden="true">◷</span> 09:30 hrs. <span class="meta-divider">·</span> <span aria-hidden="true">⌖</span> CESFAM Juan Soto Fernández</p>
+              <p class="appointment-professional">Atención con profesional de salud</p>
+            </div>
+          </article>
+        </section>
+        <section id="agendar" class="section-block">
+          <div class="section-heading">
+            <div>
+              <p class="eyebrow">NUEVA ATENCIÓN</p>
+              <h2>Agendar una hora</h2>
+            </div>
+            <span class="step-caption">Prototipo parcial · paso 1 de 3</span>
+          </div>
+          <div class="booking-card">
+            <div class="stepper" aria-label="Paso 1 de 3">
+              <div class="step active"><span>1</span><strong>Especialidad</strong></div>
+              <div class="step-line"></div>
+              <div class="step"><span>2</span><strong>Día y hora</strong></div>
+              <div class="step-line"></div>
+              <div class="step"><span>3</span><strong>Confirmar</strong></div>
+            </div>
+            <div class="booking-content">
+              <div class="booking-intro">
+                <h3>Especialidades</h3>
+                <p>Opciones de atención de ejemplo.</p>
+              </div>
+              <div class="row g-3">
+                <div class="col-12 col-md-6">
+                  <button class="service-option selected" type="button" aria-pressed="true" onclick="seleccionarEspecialidad(this)">
+                    <span class="service-symbol" aria-hidden="true">+</span>
+                    <span><strong>Medicina General</strong><small>Controles y consultas de salud</small></span>
+                  </button>
+                </div>
+                <div class="col-12 col-md-6">
+                  <button class="service-option" type="button" aria-pressed="false" onclick="seleccionarEspecialidad(this)">
+                    <span class="service-symbol dental" aria-hidden="true">✚</span>
+                    <span><strong>Odontología</strong><small>Atención y salud bucal</small></span>
+                  </button>
+                </div>
+                <div class="col-12 col-md-6">
+                  <button class="service-option" type="button" aria-pressed="false" onclick="seleccionarEspecialidad(this)">
+                    <span class="service-symbol heart" aria-hidden="true">♡</span>
+                    <span><strong>Control cardiovascular</strong><small>Seguimiento de su salud</small></span>
+                  </button>
+                </div>
+                <div class="col-12 col-md-6">
+                  <button class="service-option" type="button" aria-pressed="false" onclick="seleccionarEspecialidad(this)">
+                    <span class="service-symbol mind" aria-hidden="true">☼</span>
+                    <span><strong>Salud mental</strong><small>Apoyo y bienestar emocional</small></span>
+                  </button>
+                </div>
+              </div>
+              <p id="mensaje-agendamiento" class="static-note" aria-live="polite">Las opciones son solo visuales; aún no se consulta la disponibilidad.</p>
+              <button class="prototype-button" type="button" onclick="mostrarSiguientePaso()">Ver siguiente paso</button>
+            </div>
+          </div>
+        </section>
+      </div>
+      <footer class="page-footer">
+        <span>CESFAM Juan Soto Fernández</span>
+        <span>Prototipo de interfaz · Información de demostración</span>
+      </footer>
+    </main>
+  </div>
+  <script src="portal.js"></script>
+</body>
+</html>

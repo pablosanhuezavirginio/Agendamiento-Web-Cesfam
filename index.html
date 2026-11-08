@@ -1,0 +1,81 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="description" content="Ingreso accesible al portal de pacientes del CESFAM Juan Soto Fernández.">
+  <title>Iniciar sesión | CESFAM Juan Soto Fernández</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+  <link href="styles.css" rel="stylesheet">
+  <link href="login.css" rel="stylesheet">
+</head>
+<body class="login-page">
+  <a class="skip-link" href="#formulario-ingreso">Saltar al formulario de ingreso</a>
+  <header class="login-header">
+    <a class="login-brand" href="index.html" aria-label="CESFAM Juan Soto Fernández, inicio">
+      <span class="login-brand-mark" aria-hidden="true">+</span>
+      <span><strong>CESFAM</strong><small>Juan Soto Fernández</small></span>
+    </a>
+    <a class="login-help-link" href="tel:800500809"><span aria-hidden="true">☎</span> ¿Necesita ayuda? Llámenos</a>
+  </header>
+  <main class="login-main">
+    <section class="login-welcome" aria-labelledby="welcome-title">
+      <p class="eyebrow">PORTAL DE PACIENTES</p>
+      <h1 id="welcome-title">Sus horas de salud, más cerca.</h1>
+      <p>Ingrese para revisar sus atenciones o pedir una nueva hora, desde su casa y a su ritmo.</p>
+      <div class="welcome-points">
+        <div><span aria-hidden="true">✓</span><strong>Revise sus próximas horas</strong></div>
+        <div><span aria-hidden="true">✓</span><strong>Agende de forma sencilla</strong></div>
+        <div><span aria-hidden="true">✓</span><strong>Un familiar puede acompañarle</strong></div>
+      </div>
+      <div class="login-support">
+        <p><strong>¿Prefiere hacerlo con ayuda?</strong><br>Un familiar puede apoyarle, o puede llamarnos para recibir orientación.</p>
+      </div>
+    </section>
+    <section id="formulario-ingreso" class="login-card" aria-labelledby="login-title">
+      <div class="login-card-heading">
+        <span class="login-card-icon" aria-hidden="true">↗</span>
+        <p class="eyebrow">BIENVENIDO/A</p>
+        <h2 id="login-title">Iniciar sesión</h2>
+        <p>Use sus datos de acceso para entrar.</p>
+      </div>
+      <form action="portal.html" method="get">
+        <div class="login-field">
+          <label for="rut">RUT del paciente o tutor</label>
+          <input id="rut" type="text" autocomplete="username" placeholder="Ejemplo: 12.345.678-9" aria-describedby="rut-ayuda" required>
+          <small id="rut-ayuda">Escriba su RUT con puntos y guion.</small>
+        </div>
+        <div class="login-field">
+          <label for="tipo-usuario">Estoy ingresando como</label>
+          <select id="tipo-usuario" autocomplete="off">
+            <option>Paciente</option>
+            <option>Familiar o tutor</option>
+          </select>
+        </div>
+        <div class="login-field">
+          <label for="clave">Contraseña</label>
+          <div class="password-control">
+            <input id="clave" type="password" autocomplete="current-password" placeholder="Ingrese su contraseña" required>
+            <button id="boton-clave" class="password-toggle" type="button" onclick="mostrarClave()">Mostrar</button>
+          </div>
+        </div>
+        <div class="login-options">
+          <label class="remember-option" for="recordarme">
+            <input id="recordarme" type="checkbox">
+            <span>Recordar mi RUT en este dispositivo</span>
+          </label>
+        </div>
+        <button class="login-submit" type="submit">Ingresar al portal <span aria-hidden="true">→</span></button>
+      </form>
+    </section>
+  </main>
+  <footer class="login-footer">
+    <div class="login-footer-location">
+      <strong>CESFAM Juan Soto Fernández</strong>
+      <span>Calle Desiderio Sanhueza 393 · Atención Primaria de Salud</span>
+    </div>
+    <a href="tel:800500809">Ayuda telefónica: 800500809</a>
+  </footer>
+  <script src="login.js"></script>
+</body>
+</html>

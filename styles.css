@@ -5,11 +5,12 @@
   --ink: #203746;
   --muted: #596f7b;
   --line: #dfe7ea;
+  --surface-clinical: #ddebe7;
   --focus: #7a3e00;
 }
 body {
   margin: 0;
-  background: #f5f8f9;
+  background: var(--surface-clinical);
   color: var(--ink);
   font: 20px/1.5 Arial, Helvetica, sans-serif;
 }

@@ -1,4 +1,4 @@
-.login-page { min-height: 100vh; background: #f3f8f7; }
+.login-page { min-height: 100vh; background: var(--surface-clinical); }
 .login-header, .login-footer {
   display: flex;
   align-items: center;

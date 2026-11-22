@@ -54,7 +54,6 @@
   object-fit: contain;
 }
 .login-card h2 { font-size: 30px; }
-.login-card-heading > p:last-child { margin: 8px 0 0; color: var(--muted); font-size: 18px; }
 .login-card form { display: grid; gap: 20px; }
 .login-field { display: grid; gap: 6px; }
 .login-field label { font-size: 20px; font-weight: 700; }
@@ -73,7 +72,6 @@
 .password-toggle { min-width: 100px; min-height: 60px; padding: 8px 12px; border: 2px solid #536b76; border-radius: 8px; background: #fff; color: #145f5c; font: inherit; font-size: 18px; font-weight: 700; cursor: pointer; }
 .password-toggle:hover { background: #f0f8f6; }
 .login-field input::placeholder { color: #627681; }
-.login-field small { color: var(--muted); font-size: 18px; }
 .login-error { margin: 0; color: #a32121; font-size: 18px; font-weight: 700; }
 .login-submit {
   width: 100%;

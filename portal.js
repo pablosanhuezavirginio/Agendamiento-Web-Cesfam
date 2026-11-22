@@ -400,25 +400,21 @@ function iniciarPortal(usuario) {
 
       details.className = "appointment-details";
       status.className = "status-badge";
-      const isCancelled = appointment.status === "Cancelada";
-      status.classList.toggle("status-badge-cancelled", isCancelled);
-      status.textContent = isCancelled ? "Cancelada" : "Confirmada";
+      status.textContent = "Confirmada";
       specialty.textContent = appointment.specialty;
       meta.className = "appointment-meta";
       meta.textContent = appointment.time + " hrs. · CESFAM Juan Soto Fernández";
       note.className = "appointment-professional";
       note.textContent = "Horario de demostración";
       details.append(status, specialty, meta, note);
-      if (!isCancelled) {
-        const cancelButton = document.createElement("button");
-        cancelButton.type = "button";
-        cancelButton.className = "cancel-appointment";
-        cancelButton.dataset.cancelAppointment = appointmentId(appointment);
-        cancelButton.textContent = "Cancelar hora";
-        cancelButton.setAttribute("aria-label", "Cancelar " + appointment.specialty
-          + ", " + formatDate(appointment.date) + " a las " + appointment.time);
-        details.appendChild(cancelButton);
-      }
+      const cancelButton = document.createElement("button");
+      cancelButton.type = "button";
+      cancelButton.className = "cancel-appointment";
+      cancelButton.dataset.cancelAppointment = appointmentId(appointment);
+      cancelButton.textContent = "Cancelar hora";
+      cancelButton.setAttribute("aria-label", "Cancelar " + appointment.specialty
+        + ", " + formatDate(appointment.date) + " a las " + appointment.time);
+      details.appendChild(cancelButton);
       card.append(dateBlock, details);
       appointmentList.appendChild(card);
     });

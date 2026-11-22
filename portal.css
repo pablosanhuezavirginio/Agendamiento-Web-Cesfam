@@ -45,7 +45,6 @@
 .appointment-date strong { color: #174e50; font-size: 28px; line-height: 1.1; }
 .appointment-details { flex: 1; }
 .status-badge { color: #17613e; font-size: 18px; font-weight: 700; }
-.status-badge-cancelled { color: #a32121; }
 .appointment-details h3 { margin: 2px 0; font-size: 20px; }
 .appointment-meta { margin: 3px 0; color: #405865; font-size: 18px; }
 .appointment-professional { margin: 0; color: var(--muted); font-size: 16px; }

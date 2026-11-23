@@ -5,7 +5,7 @@ Prototipo web para consultar y agendar horas médicas ficticias del CESFAM Juan 
 ## Equipo
 
 - Pablo Sanhueza: jefe de proyecto
-- Pablo Silva: programación
+- Pablo Silva: programador
 
 ## Funcionalidades
 

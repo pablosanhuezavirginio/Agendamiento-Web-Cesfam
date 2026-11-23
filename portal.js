@@ -1,172 +1,159 @@
-const rutSesion = sessionStorage.getItem("cesfam-demo-user");
-const usuarioSesion = window.CESFAM_DEMO_USERS.find(function (cuenta) {
-  return window.normalizarRutDemo(cuenta.rut) === window.normalizarRutDemo(rutSesion || "");
-});
+const el = (id) => document.getElementById(id);
+const normalizeRut = window.normalizarRutDemo;
+const rutSession = sessionStorage.getItem("cesfam-demo-user");
+const user = window.CESFAM_DEMO_USERS.find((account) =>
+  normalizeRut(account.rut) === normalizeRut(rutSession || "")
+);
 
-if (!usuarioSesion) {
+if (!user) {
   sessionStorage.removeItem("cesfam-demo-user");
   window.location.replace("index.html");
 } else {
-  iniciarPortal(usuarioSesion);
+  startPortal(user);
 }
 
-function iniciarPortal(usuario) {
-  const iniciales = usuario.name.split(/\s+/).map(function (parte) {
-    return parte.charAt(0);
-  }).join("").slice(0, 2).toUpperCase();
+function startPortal(user) {
+  const ui = {
+    stepPanels: [...document.querySelectorAll("[data-booking-step]")],
+    stepIndicators: [...document.querySelectorAll("[data-step-indicator]")],
+    specialtyButtons: [...document.querySelectorAll(".service-option")],
+    dateList: el("fechas-disponibles"),
+    timeList: el("horarios-disponibles"),
+    appointmentList: el("lista-horas"),
+    cancelDialog: el("dialogo-cancelacion"),
+    stepper: el("stepper"),
+    stepCaption: el("step-caption"),
+    appointmentError: el("error-horas"),
+    storageError: el("error-almacenamiento"),
+    cancelError: el("error-cancelacion"),
+    confirmButton: el("confirmar-reserva"),
+    continueTimeButton: el("continuar-horario")
+  };
+  const state = {
+    specialty: "",
+    date: "",
+    time: "",
+    pendingCancellationId: "",
+    storageReady: true,
+    appointments: []
+  };
+  const storageKey = "cesfam-demo-appointments-" + normalizeRut(user.rut);
+  const dates = buildAvailableDates();
 
-  document.getElementById("nombre-usuario").textContent = usuario.name;
-  document.getElementById("avatar-usuario").textContent = iniciales;
-  document.getElementById("nombre-bienvenida").textContent = usuario.name.split(/\s+/)[0];
-  document.getElementById("fecha-actual").textContent = new Intl.DateTimeFormat("es-CL", {
-    weekday: "long",
-    day: "numeric",
-    month: "long",
-    year: "numeric"
+  el("nombre-usuario").textContent = user.name;
+  el("avatar-usuario").textContent = user.name.split(/\s+/)
+    .map((part) => part.charAt(0)).join("").slice(0, 2).toUpperCase();
+  el("nombre-bienvenida").textContent = user.name.split(/\s+/)[0];
+  el("fecha-actual").textContent = new Intl.DateTimeFormat("es-CL", {
+    weekday: "long", day: "numeric", month: "long", year: "numeric"
   }).format(new Date()).toUpperCase();
-  document.getElementById("cerrar-sesion").addEventListener("click", function () {
+  el("cerrar-sesion").addEventListener("click", () => {
     sessionStorage.removeItem("cesfam-demo-user");
   });
 
-  const storageKey = "cesfam-demo-appointments-" + window.normalizarRutDemo(usuario.rut);
-  const specialtyButtons = Array.from(document.querySelectorAll(".service-option"));
-  const dateContainer = document.getElementById("fechas-disponibles");
-  const timeContainer = document.getElementById("horarios-disponibles");
-  const appointmentList = document.getElementById("lista-horas");
-  const storageError = document.getElementById("error-almacenamiento");
-  const appointmentError = document.getElementById("error-horas");
-  const confirmButton = document.getElementById("confirmar-reserva");
-  const cancelDialog = document.getElementById("dialogo-cancelacion");
-  const cancelDetails = document.getElementById("detalle-cancelacion");
-  const cancelError = document.getElementById("error-cancelacion");
-  const dates = buildAvailableDates();
-  let selectedSpecialty = "";
-  let selectedDate = "";
-  let selectedTime = "";
-  let pendingCancellationId = "";
-  let storageReady = true;
-  let appointments = loadAppointments();
+  state.appointments = loadAppointments();
 
-  renderAppointments();
-  renderDates();
-  updateStep(1);
-
-  specialtyButtons.forEach(function (button) {
-    button.addEventListener("click", function () {
-      specialtyButtons.forEach(function (option) {
+  ui.specialtyButtons.forEach((button) => {
+    button.addEventListener("click", () => {
+      ui.specialtyButtons.forEach((option) => {
         const selected = option === button;
         option.classList.toggle("selected", selected);
         option.setAttribute("aria-pressed", String(selected));
       });
-      selectedSpecialty = button.dataset.specialty;
-      document.getElementById("continuar-especialidad").disabled = false;
+      state.specialty = button.dataset.specialty;
+      el("continuar-especialidad").disabled = false;
     });
   });
 
-  document.getElementById("continuar-especialidad").addEventListener("click", function () {
-    updateStep(2, true);
-  });
-
-  document.getElementById("volver-especialidad").addEventListener("click", function () {
-    updateStep(1, true);
-  });
-
-  document.getElementById("continuar-horario").addEventListener("click", function () {
-    if (!selectedDate || !selectedTime) return;
-    document.getElementById("resumen-paciente").textContent = usuario.name;
-    document.getElementById("resumen-especialidad").textContent = selectedSpecialty;
-    document.getElementById("resumen-fecha").textContent = formatDate(selectedDate);
-    document.getElementById("resumen-hora").textContent = selectedTime;
-    storageError.hidden = true;
+  el("continuar-especialidad").addEventListener("click", () => updateStep(2, true));
+  el("volver-especialidad").addEventListener("click", () => updateStep(1, true));
+  el("continuar-horario").addEventListener("click", () => {
+    if (!state.date || !state.time) return;
+    el("resumen-paciente").textContent = user.name;
+    el("resumen-especialidad").textContent = state.specialty;
+    el("resumen-fecha").textContent = formatDate(state.date);
+    el("resumen-hora").textContent = state.time;
+    ui.storageError.hidden = true;
     updateStep(3, true);
   });
+  el("volver-horario").addEventListener("click", () => updateStep(2, true));
+  ui.confirmButton.addEventListener("click", confirmAppointment);
 
-  document.getElementById("volver-horario").addEventListener("click", function () {
-    updateStep(2, true);
-  });
-
-  document.getElementById("confirmar-reserva").addEventListener("click", confirmAppointment);
-  appointmentList.addEventListener("click", function (event) {
+  ui.appointmentList.addEventListener("click", (event) => {
     const button = event.target.closest("[data-cancel-appointment]");
     if (!button) return;
-
-    const appointment = appointments.find(function (item) {
-      return appointmentId(item) === button.dataset.cancelAppointment
-        && item.status !== "Cancelada";
-    });
+    const appointment = state.appointments.find((item) =>
+      appointmentId(item) === button.dataset.cancelAppointment
+    );
     if (!appointment) return;
-
-    pendingCancellationId = appointmentId(appointment);
-    cancelDetails.textContent = appointment.specialty + " · " + formatDate(appointment.date)
-      + " · " + appointment.time;
-    cancelError.hidden = true;
-    cancelDialog.showModal();
-    document.getElementById("mantener-hora").focus();
+    state.pendingCancellationId = appointmentId(appointment);
+    el("detalle-cancelacion").textContent =
+      `${appointment.specialty} · ${formatDate(appointment.date)} · ${appointment.time}`;
+    ui.cancelError.hidden = true;
+    ui.cancelDialog.showModal();
+    el("mantener-hora").focus();
   });
-  document.getElementById("mantener-hora").addEventListener("click", function () {
-    cancelDialog.close();
-  });
-  document.getElementById("confirmar-cancelacion").addEventListener("click", cancelAppointment);
-  cancelDialog.addEventListener("close", function () {
-    pendingCancellationId = "";
+  el("mantener-hora").addEventListener("click", () => ui.cancelDialog.close());
+  el("confirmar-cancelacion").addEventListener("click", cancelAppointment);
+  ui.cancelDialog.addEventListener("close", () => {
+    state.pendingCancellationId = "";
   });
 
-  document.getElementById("agendar-otra-hora").addEventListener("click", function () {
-    selectedSpecialty = "";
-    selectedDate = "";
-    selectedTime = "";
-    specialtyButtons.forEach(function (button) {
+  el("agendar-otra-hora").addEventListener("click", () => {
+    state.specialty = "";
+    state.date = "";
+    state.time = "";
+    ui.specialtyButtons.forEach((button) => {
       button.classList.remove("selected");
       button.setAttribute("aria-pressed", "false");
     });
-    document.getElementById("continuar-especialidad").disabled = true;
-    document.getElementById("resumen-reserva").hidden = false;
-    document.getElementById("reserva-confirmada").hidden = true;
-    document.getElementById("continuar-horario").disabled = true;
+    el("continuar-especialidad").disabled = true;
+    el("resumen-reserva").hidden = false;
+    el("reserva-confirmada").hidden = true;
+    ui.continueTimeButton.disabled = true;
     renderDates();
     renderTimes();
     updateStep(1, true);
   });
 
-  function updateStep(step, moveFocus) {
-    document.querySelectorAll("[data-booking-step]").forEach(function (panel) {
+  renderAppointments();
+  renderDates();
+  updateStep(1);
+
+  function updateStep(step, moveFocus = false) {
+    ui.stepPanels.forEach((panel) => {
       panel.hidden = Number(panel.dataset.bookingStep) !== step;
     });
-    document.querySelectorAll("[data-step-indicator]").forEach(function (indicator) {
+    ui.stepIndicators.forEach((indicator) => {
       const indicatorStep = Number(indicator.dataset.stepIndicator);
       indicator.classList.toggle("active", indicatorStep === step);
       indicator.classList.toggle("completed", indicatorStep < step);
-      if (indicatorStep === step) {
-        indicator.setAttribute("aria-current", "step");
-      } else {
-        indicator.removeAttribute("aria-current");
-      }
+      if (indicatorStep === step) indicator.setAttribute("aria-current", "step");
+      else indicator.removeAttribute("aria-current");
     });
-    document.getElementById("stepper").setAttribute("aria-label", "Paso " + step + " de 3");
-    document.getElementById("step-caption").textContent = "Paso " + step + " de 3";
-    document.getElementById("continuar-horario").disabled = !selectedDate || !selectedTime;
-    confirmButton.disabled = !storageReady;
+    ui.stepper.setAttribute("aria-label", `Paso ${step} de 3`);
+    ui.stepCaption.textContent = `Paso ${step} de 3`;
+    ui.continueTimeButton.disabled = !state.date || !state.time;
+    ui.confirmButton.disabled = !state.storageReady;
     if (moveFocus) {
-      const heading = document.querySelector('[data-booking-step="' + step + '"] h3');
+      const heading = document.querySelector(`[data-booking-step="${step}"] h3`);
       heading.setAttribute("tabindex", "-1");
       heading.focus();
     }
   }
 
   function appointmentId(appointment) {
-    return appointment.id || appointment.date + "T" + appointment.time;
+    return appointment.id || `${appointment.date}T${appointment.time}`;
   }
 
   function buildAvailableDates() {
-    const availableDates = [];
+    const result = [];
     const date = new Date();
-    while (availableDates.length < 3) {
+    while (result.length < 3) {
       date.setDate(date.getDate() + 1);
-      if (date.getDay() !== 0 && date.getDay() !== 6) {
-        availableDates.push(dateKey(date));
-      }
+      if (![0, 6].includes(date.getDay())) result.push(dateKey(date));
     }
-    return availableDates;
+    return result;
   }
 
   function dateKey(date) {
@@ -178,76 +165,77 @@ function iniciarPortal(usuario) {
   }
 
   function dateFromKey(key) {
-    const parts = key.split("-").map(Number);
-    return new Date(parts[0], parts[1] - 1, parts[2], 12);
+    const [year, month, day] = key.split("-").map(Number);
+    return new Date(year, month - 1, day, 12);
   }
 
   function formatDate(key) {
     const label = new Intl.DateTimeFormat("es-CL", {
-      weekday: "long",
-      day: "numeric",
-      month: "long",
-      year: "numeric"
+      weekday: "long", day: "numeric", month: "long", year: "numeric"
     }).format(dateFromKey(key));
     return label.charAt(0).toUpperCase() + label.slice(1);
   }
 
-  function renderDates() {
-    dateContainer.replaceChildren();
-    dates.forEach(function (key) {
+  function renderChoice(container, choices, className, selectedValue, onSelect) {
+    container.replaceChildren();
+    choices.forEach(({ key, label }) => {
       const button = document.createElement("button");
-      const label = formatDate(key);
       button.type = "button";
-      button.className = "date-option";
+      button.className = className;
       button.textContent = label;
-      button.setAttribute("aria-pressed", String(key === selectedDate));
-      button.addEventListener("click", function () {
-        selectedDate = key;
-        selectedTime = "";
-        renderDates();
-        renderTimes();
-        document.getElementById("continuar-horario").disabled = true;
-      });
-      dateContainer.appendChild(button);
+      button.setAttribute("aria-pressed", String(key === selectedValue));
+      button.addEventListener("click", () => onSelect(key));
+      container.appendChild(button);
     });
   }
 
+  function renderDates() {
+    renderChoice(
+      ui.dateList,
+      dates.map((key) => ({ key, label: formatDate(key) })),
+      "date-option",
+      state.date,
+      (key) => {
+        state.date = key;
+        state.time = "";
+        renderDates();
+        renderTimes();
+        ui.continueTimeButton.disabled = true;
+      }
+    );
+  }
+
   function renderTimes() {
-    timeContainer.replaceChildren();
-    const message = document.getElementById("mensaje-horarios");
-    if (!selectedDate) {
+    ui.timeList.replaceChildren();
+    const message = el("mensaje-horarios");
+    if (!state.date) {
       message.textContent = "Seleccione un día para ver sus horarios.";
       return;
     }
-
-    const bookedTimes = new Set(appointments
-      .filter(function (appointment) {
-        return appointment.date === selectedDate && appointment.status !== "Cancelada";
-      })
-      .map(function (appointment) { return appointment.time; }));
-    const availableTimes = ["09:00", "10:30", "11:30", "15:00"].filter(function (time) {
-      return !bookedTimes.has(time);
-    });
-
-    if (availableTimes.length === 0) {
+    const bookedTimes = new Set(state.appointments
+      .filter((appointment) => appointment.date === state.date)
+      .map((appointment) => appointment.time));
+    const choices = ["09:00", "10:30", "11:30", "15:00"]
+      .filter((time) => !bookedTimes.has(time))
+      .map((time) => ({ key: time, label: time }));
+    if (!choices.length) {
       message.textContent = "No quedan horarios para ese día. Elija otra fecha.";
       return;
     }
-
-    message.textContent = "Horarios disponibles para " + formatDate(selectedDate) + ".";
-    availableTimes.forEach(function (time) {
-      const button = document.createElement("button");
-      button.type = "button";
-      button.className = "time-option";
-      button.textContent = time;
-      button.setAttribute("aria-pressed", String(time === selectedTime));
-      button.addEventListener("click", function () {
-        selectedTime = time;
-        renderTimes();
-        document.getElementById("continuar-horario").disabled = false;
-      });
-      timeContainer.appendChild(button);
+    message.textContent = "Horarios disponibles para " + formatDate(state.date) + ".";
+    renderChoice(ui.timeList, choices, "time-option", state.time, (time) => {
+      state.time = time;
+      renderTimes();
+      ui.continueTimeButton.disabled = false;
     });
+  }
+
+  function showStorageError() {
+    state.storageReady = false;
+    ui.storageError.hidden = false;
+    ui.appointmentError.hidden = false;
+    ui.cancelError.hidden = false;
+    ui.confirmButton.disabled = true;
   }
 
   function loadAppointments() {
@@ -255,36 +243,26 @@ function iniciarPortal(usuario) {
     try {
       stored = localStorage.getItem(storageKey);
     } catch (error) {
-      handleStorageError(error);
+      showStorageError();
+      console.error("No se pudo acceder al almacenamiento local.", error);
       return [];
     }
     if (!stored) return [];
-
     try {
       const parsed = JSON.parse(stored);
-      const valid = Array.isArray(parsed) && parsed.every(function (appointment) {
-        return appointment
-          && typeof appointment.specialty === "string"
-          && /^\d{4}-\d{2}-\d{2}$/.test(appointment.date)
-          && /^\d{2}:\d{2}$/.test(appointment.time);
-      });
-      if (!valid) {
-        storageReady = false;
-        showStorageError();
-        console.error("La lista de horas guardadas tiene un formato inesperado.");
-        return [];
-      }
-      const activeAppointments = parsed.filter(function (appointment) {
-        return appointment.status !== "Cancelada";
-      });
-      if (activeAppointments.length !== parsed.length
-        && !saveAppointments(activeAppointments)) return parsed;
-      return activeAppointments;
+      const valid = Array.isArray(parsed) && parsed.every((appointment) =>
+        appointment
+        && typeof appointment.specialty === "string"
+        && /^\d{4}-\d{2}-\d{2}$/.test(appointment.date)
+        && /^\d{2}:\d{2}$/.test(appointment.time)
+      );
+      if (!valid) throw new TypeError("Formato de reservas inválido.");
+      const active = parsed.filter((appointment) => appointment.status !== "Cancelada");
+      if (active.length !== parsed.length && !saveAppointments(active)) return parsed;
+      return active;
     } catch (error) {
-      if (!(error instanceof SyntaxError)) throw error;
-      storageReady = false;
       showStorageError();
-      console.error("No se pudieron leer las horas de demostración guardadas.", error);
+      console.error("No se pudieron leer las horas de demostración.", error);
       return [];
     }
   }
@@ -294,129 +272,103 @@ function iniciarPortal(usuario) {
       localStorage.setItem(storageKey, JSON.stringify(updatedAppointments));
       return true;
     } catch (error) {
-      handleStorageError(error);
+      showStorageError();
+      console.error("No se pudo guardar la reserva.", error);
       return false;
     }
   }
 
-  function handleStorageError(error) {
-    if (!(error instanceof DOMException)) throw error;
-    storageReady = false;
-    showStorageError();
-    console.error("No se pudo acceder al almacenamiento local del navegador.", error);
-  }
-
-  function showStorageError() {
-    storageError.hidden = false;
-    appointmentError.hidden = false;
-    cancelError.hidden = false;
-    confirmButton.disabled = true;
-  }
-
   function confirmAppointment() {
-    if (!selectedSpecialty || !selectedDate || !selectedTime || !storageReady) return;
-
+    if (!state.specialty || !state.date || !state.time || !state.storageReady) return;
     const appointment = {
-      id: selectedDate + "T" + selectedTime + "-" + Date.now(),
-      specialty: selectedSpecialty,
-      date: selectedDate,
-      time: selectedTime,
+      id: `${state.date}T${state.time}-${Date.now()}`,
+      specialty: state.specialty,
+      date: state.date,
+      time: state.time,
       status: "Confirmada"
     };
-    const updatedAppointments = appointments.concat(appointment);
-    if (!saveAppointments(updatedAppointments)) return;
-
-    appointments = updatedAppointments;
+    const updated = state.appointments.concat(appointment);
+    if (!saveAppointments(updated)) return;
+    state.appointments = updated;
     renderAppointments();
-    document.getElementById("resumen-reserva").hidden = true;
-    document.getElementById("reserva-confirmada").hidden = false;
-    document.getElementById("detalle-confirmacion").textContent =
-      selectedSpecialty + " · " + formatDate(selectedDate) + " · " + selectedTime;
-    document.getElementById("step-caption").textContent = "Paso 3 de 3 · Confirmada";
+    el("resumen-reserva").hidden = true;
+    el("reserva-confirmada").hidden = false;
+    el("detalle-confirmacion").textContent =
+      `${state.specialty} · ${formatDate(state.date)} · ${state.time}`;
+    ui.stepCaption.textContent = "Paso 3 de 3 · Confirmada";
     const successHeading = document.querySelector("#reserva-confirmada h3");
     successHeading.setAttribute("tabindex", "-1");
     successHeading.focus();
   }
 
   function cancelAppointment() {
-    const appointmentToCancel = appointments.find(function (appointment) {
-      return appointmentId(appointment) === pendingCancellationId
-        && appointment.status !== "Cancelada";
-    });
-    if (!appointmentToCancel) {
-      cancelDialog.close();
-      renderAppointments();
-      return;
-    }
-
-    const updatedAppointments = appointments.filter(function (appointment) {
-      return appointmentId(appointment) !== pendingCancellationId;
-    });
-    if (!saveAppointments(updatedAppointments)) return;
-
-    appointments = updatedAppointments;
-    appointmentError.hidden = true;
-    document.getElementById("mensaje-horas").textContent =
+    const updated = state.appointments.filter((appointment) =>
+      appointmentId(appointment) !== state.pendingCancellationId
+    );
+    if (!saveAppointments(updated)) return;
+    state.appointments = updated;
+    ui.appointmentError.hidden = true;
+    el("mensaje-horas").textContent =
       "La hora fue cancelada y eliminada de su historial.";
     renderAppointments();
-    if (selectedDate) renderTimes();
-    cancelDialog.close();
-    document.getElementById("titulo-mis-horas").focus();
+    if (state.date) renderTimes();
+    ui.cancelDialog.close();
+    el("titulo-mis-horas").focus();
   }
 
   function renderAppointments() {
-    appointmentList.replaceChildren();
-    if (appointments.length === 0) {
+    ui.appointmentList.replaceChildren();
+    if (!state.appointments.length) {
       const emptyState = document.createElement("p");
       emptyState.className = "appointments-empty";
       emptyState.textContent = "Todavía no tiene horas reservadas.";
-      appointmentList.appendChild(emptyState);
+      ui.appointmentList.appendChild(emptyState);
       return;
     }
+    state.appointments.slice()
+      .sort((a, b) => (a.date + a.time).localeCompare(b.date + b.time))
+      .forEach((appointment) => {
+        const date = dateFromKey(appointment.date);
+        const card = document.createElement("article");
+        card.className = "appointment-card";
 
-    appointments.slice().sort(function (first, second) {
-      return (first.date + first.time).localeCompare(second.date + second.time);
-    }).forEach(function (appointment) {
-      const date = dateFromKey(appointment.date);
-      const card = document.createElement("article");
-      const dateBlock = document.createElement("div");
-      const weekday = document.createElement("span");
-      const day = document.createElement("strong");
-      const month = document.createElement("span");
-      const details = document.createElement("div");
-      const status = document.createElement("span");
-      const specialty = document.createElement("h3");
-      const meta = document.createElement("p");
-      const note = document.createElement("p");
+        const dateBlock = document.createElement("div");
+        dateBlock.className = "appointment-date";
+        const weekday = document.createElement("span");
+        weekday.textContent = new Intl.DateTimeFormat("es-CL", { weekday: "short" })
+          .format(date).replace(".", "").toUpperCase();
+        const day = document.createElement("strong");
+        day.textContent = String(date.getDate());
+        const month = document.createElement("span");
+        month.textContent = new Intl.DateTimeFormat("es-CL", { month: "short" })
+          .format(date).replace(".", "").toUpperCase();
+        dateBlock.append(weekday, day, month);
 
-      card.className = "appointment-card";
-      dateBlock.className = "appointment-date";
-      weekday.textContent = new Intl.DateTimeFormat("es-CL", { weekday: "short" })
-        .format(date).replace(".", "").toUpperCase();
-      day.textContent = String(date.getDate());
-      month.textContent = new Intl.DateTimeFormat("es-CL", { month: "short" })
-        .format(date).replace(".", "").toUpperCase();
-      dateBlock.append(weekday, day, month);
+        const details = document.createElement("div");
+        details.className = "appointment-details";
+        const status = document.createElement("span");
+        status.className = "status-badge";
+        status.textContent = "Confirmada";
+        const specialty = document.createElement("h3");
+        specialty.textContent = appointment.specialty;
+        const meta = document.createElement("p");
+        meta.className = "appointment-meta";
+        meta.textContent = `${appointment.time} hrs. · CESFAM Juan Soto Fernández`;
+        const note = document.createElement("p");
+        note.className = "appointment-professional";
+        note.textContent = "Horario de demostración";
 
-      details.className = "appointment-details";
-      status.className = "status-badge";
-      status.textContent = "Confirmada";
-      specialty.textContent = appointment.specialty;
-      meta.className = "appointment-meta";
-      meta.textContent = appointment.time + " hrs. · CESFAM Juan Soto Fernández";
-      note.className = "appointment-professional";
-      note.textContent = "Horario de demostración";
-      details.append(status, specialty, meta, note);
-      const cancelButton = document.createElement("button");
-      cancelButton.type = "button";
-      cancelButton.className = "cancel-appointment";
-      cancelButton.dataset.cancelAppointment = appointmentId(appointment);
-      cancelButton.textContent = "Cancelar hora";
-      cancelButton.setAttribute("aria-label", "Cancelar " + appointment.specialty
-        + ", " + formatDate(appointment.date) + " a las " + appointment.time);
-      details.appendChild(cancelButton);
-      card.append(dateBlock, details);
-      appointmentList.appendChild(card);
-    });
+        const cancelButton = document.createElement("button");
+        cancelButton.type = "button";
+        cancelButton.className = "cancel-appointment";
+        cancelButton.dataset.cancelAppointment = appointmentId(appointment);
+        cancelButton.textContent = "Cancelar hora";
+        cancelButton.setAttribute("aria-label",
+          `Cancelar ${appointment.specialty}, ${formatDate(appointment.date)} a las ${appointment.time}`);
+        details.append(status, specialty, meta, note);
+        details.appendChild(cancelButton);
+        card.append(dateBlock, details);
+        ui.appointmentList.appendChild(card);
+      });
   }
 }
